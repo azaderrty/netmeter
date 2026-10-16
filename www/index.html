@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>NetMeter</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>NetMeter</h1>
+    <div class="version" id="ver">v1.0.0</div>
+    <button id="themeToggle">🌙</button>
+  </header>
+
+  <section class="card">
+    <h2>Тест швидкості</h2>
+    <div class="size-select">
+      <label>Розмір тесту:</label>
+      <select id="testSize">
+        <option value="10" selected>Мінімальний ~10 МБ (default)</option>
+        <option value="40">Помірний ~40 МБ</option>
+        <option value="150">Максимальний ~150 МБ</option>
+      </select>
+    </div>
+    <button id="startTest">Почати тест</button>
+    <div class="results-grid">
+      <div class="metric"><span class="label">Download</span><span class="value" id="dl">--</span><span class="unit">Mbps</span></div>
+      <div class="metric"><span class="label">Upload</span><span class="value" id="ul">--</span><span class="unit">Mbps</span></div>
+      <div class="metric"><span class="label">Ping</span><span class="value" id="ping">--</span><span class="unit">ms</span></div>
+      <div class="metric"><span class="label">Jitter</span><span class="value" id="jitter">--</span><span class="unit">ms</span></div>
+      <div class="metric"><span class="label">Loss</span><span class="value" id="loss">--</span><span class="unit">%</span></div>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="status" id="status">Готовий</div>
+    <canvas id="graph" width="300" height="120"></canvas>
+    <div class="history">
+      <h3>Історія тестів <button id="clearHist">Очистити</button></h3>
+      <ul id="histList"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Мій IP / провайдер</h2>
+    <div class="info"><span>Публічний IP</span><span id="pubIP">--</span></div>
+    <div class="info"><span>IPv6</span><span id="ip6">--</span></div>
+    <div class="info"><span>ISP/ASN/Організація</span><span id="isp">--</span></div>
+    <div class="info"><span>Місто/Країна</span><span id="loc">--</span></div>
+    <div class="info"><span>Вузол Cloudflare</span><span id="colo">--</span></div>
+    <div class="info"><span>Таймзона</span><span id="tz">--</span></div>
+    <div class="info"><span>Координати</span><span id="coords">--</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Локальна мережа</h2>
+    <div class="info"><span>Тип з'єднання</span><span id="netType">--</span></div>
+    <div class="info"><span>Локальний IP</span><span id="localIP">--</span></div>
+    <div class="info"><span>Шлюз</span><span id="gateway">--</span></div>
+    <div class="info"><span>DNS</span><span id="dns">--</span></div>
+    <div class="info"><span>Інтерфейси</span><span id="ifaces">--</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Пристрій</h2>
+    <div class="info"><span>Модель/виробник</span><span id="devModel">--</span></div>
+    <div class="info"><span>Android + SDK</span><span id="devOs">--</span></div>
+    <div class="info"><span>Екран</span><span id="devScr">--</span></div>
+    <div class="info"><span>WebView/Chrome</span><span id="devWeb">--</span></div>
+    <div class="info"><span>Локаль</span><span id="devLoc">--</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Інструменти (експериментальне)</h2>
+    <div class="tools">
+      <input id="dnsName" placeholder="domain.com" />
+      <button id="dnsLookup">DNS lookup</button>
+      <pre id="dnsOut"></pre>
+      <input id="portHost" placeholder="host" />
+      <input id="portPort" type="number" placeholder="port" />
+      <button id="portCheck">TCP-перевірка порту</button>
+      <pre id="portOut"></pre>
+      <button id="wifiBtn">Wi‑Fi RSSI (експериментально)</button>
+      <pre id="wifiOut"></pre>
+      <input id="traceHost" placeholder="host для traceroute" />
+      <button id="traceBtn">Traceroute (best‑effort)</button>
+      <pre id="traceOut"></pre>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
