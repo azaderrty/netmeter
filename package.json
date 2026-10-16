@@ -7,7 +7,8 @@
   "scripts": {
     "cap:add": "cap add android",
     "cap:sync": "cap sync android",
-    "cap:open": "cap open android"
+    "cap:open": "cap open android",
+    "assets": "capacitor-assets generate --android --iconBackgroundColor '#1e3a8a' --iconBackgroundColorDark '#0b1225'"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",
@@ -17,6 +18,7 @@
     "@capacitor/share": "^6.0.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^6.2.0"
   }
 }

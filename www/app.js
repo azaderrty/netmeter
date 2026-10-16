@@ -1,8 +1,15 @@
-import { Capacitor } from '@capacitor/core';
-import { Device } from '@capacitor/device';
-import { Network } from '@capacitor/network';
-
 const $ = id => document.getElementById(id);
+
+const Native = window.Capacitor || {};
+const Plugins = Native.Plugins || {};
+const Device = Plugins.Device || null;
+const Network = Plugins.Network || null;
+
+function canUseNative(name) {
+  if (Plugins[name]) return true;
+  console.warn('[NetMeter] Capacitor plugin ' + name + ' недоступний');
+  return false;
+}
 
 let theme = localStorage.getItem('theme') || 'dark';
 if (theme === 'light') document.body.classList.add('light');
@@ -55,6 +62,7 @@ async function loadNetInfo() {
   const ip6 = await getIPv6();
 
   $('pubIP').textContent = cf.ip || who.ip || '--';
+  setIpBadge(cf.ip || who.ip);
   $('ip6').textContent = ip6?.ip || 'недоступний';
   const isp = who.connection || {};
   $('isp').textContent = [isp.isp, isp.asn, isp.org].filter(Boolean).join(' / ') || cf.asn || '--';
@@ -64,13 +72,23 @@ async function loadNetInfo() {
   const lat = who.latitude || cf.lat, lon = who.longitude || cf.lon;
   $('coords').textContent = (lat && lon) ? lat+','+lon : '--';
 
-  const net = await Network.getStatus();
-  $('netType').textContent = net.connectionType || '--';
+  if (canUseNative('Network')) {
+    try {
+      const net = await Network.getStatus();
+      $('netType').textContent = net.connectionType || '--';
+    } catch (e) { $('netType').textContent = '--'; }
+  } else {
+    $('netType').textContent = navigator.onLine ? 'online' : 'offline';
+  }
 
   // Device info
-  const dev = await Device.getInfo();
-  $('devModel').textContent = `${dev.manufacturer} ${dev.model}`;
-  $('devOs').textContent = `${dev.operatingSystem} ${dev.osVersion} (SDK ${dev.androidSdkVersion || '-'})`;
+  if (canUseNative('Device')) {
+    try {
+      const dev = await Device.getInfo();
+      $('devModel').textContent = [dev.manufacturer, dev.model].filter(Boolean).join(' ');
+      $('devOs').textContent = `${dev.operatingSystem} ${dev.osVersion} (SDK ${dev.androidSdkVersion || '-'})`;
+    } catch (e) { /* ignore */ }
+  }
   $('devScr').textContent = `${window.screen.width}×${window.screen.height}`;
   const ua = navigator.userAgent;
   const webv = ua.match(/Chrome\/([\d.]+)/i);
@@ -79,6 +97,48 @@ async function loadNetInfo() {
 }
 
 loadNetInfo();
+
+function setIpBadge(ip) {
+  const el = $('ipBadgeValue');
+  if (el) el.textContent = ip || '--';
+}
+
+async function copyText(text) {
+  if (!text || text === '--') return false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) { /* fallback нижче */ }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+const copyBtn = $('copyIp');
+if (copyBtn) {
+  copyBtn.onclick = async () => {
+    const ok = await copyText(($('ipBadgeValue').textContent || '').trim());
+    const prev = copyBtn.textContent;
+    copyBtn.classList.toggle('copied', ok);
+    copyBtn.textContent = ok ? 'Скопійовано ✓' : 'Не вдалось';
+    setTimeout(() => {
+      copyBtn.classList.remove('copied');
+      copyBtn.textContent = prev;
+    }, 1500);
+  };
+}
 
 let testRunning=false;
 $('startTest').onclick = async () => {
